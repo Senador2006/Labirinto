@@ -1,0 +1,62 @@
+import os
+
+def limpar_tela():
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+def carregar_mapa(arquivo):
+    try:
+        with open(arquivo, 'r', encoding='utf-8') as f:
+            mapa = [list(linha.strip()) for linha in f.readlines()]
+        return mapa
+    except FileNotFoundError:
+        print("Erro: Arquivo do mapa não encontrado.")
+        exit()
+
+def imprimir_mapa(mapa):
+    limpar_tela()
+    for linha in mapa:
+        print(''.join(linha))
+
+def encontrar_jogador(mapa):
+    for i, linha in enumerate(mapa):
+        for j, celula in enumerate(linha):
+            if celula == 'J':
+                return i, j
+    return None, None  # Se não encontrar o jogador
+
+def mover_jogador(mapa, direcao):
+    i, j = encontrar_jogador(mapa)
+    if i is None or j is None:
+        return  # Se o jogador não for encontrado, não faz nada
+    
+    novas_coordenadas = {
+        'w': (i - 1, j),  # Cima
+        's': (i + 1, j),  # Baixo
+        'a': (i, j - 1),  # Esquerda
+        'd': (i, j + 1)   # Direita
+    }
+    
+    if direcao in novas_coordenadas:
+        novo_i, novo_j = novas_coordenadas[direcao]
+        if 0 <= novo_i < len(mapa) and 0 <= novo_j < len(mapa[0]):  # Garante que está dentro dos limites
+            if mapa[novo_i][novo_j] == "'":
+                mapa[i][j] = "'"  # Deixa a posição antiga livre
+                mapa[novo_i][novo_j] = '.'  # Move o jogador
+
+def jogar_labirinto():
+    arquivo_mapa = "mapa.txt"
+    mapa = carregar_mapa(arquivo_mapa)
+    
+    while True:
+        imprimir_mapa(mapa)
+        movimento = input("Use W A S D para mover ou Q para sair: ").lower()
+        if movimento == 'q':
+            print("Saindo do jogo...")
+            break
+        elif movimento in ['w', 'a', 's', 'd']:
+            mover_jogador(mapa, movimento)
+        else:
+            print("Movimento inválido! Use W, A, S ou D.")
+
+if __name__ == "__main__":
+    jogar_labirinto()
