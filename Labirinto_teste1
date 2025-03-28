@@ -41,7 +41,7 @@ def mover_jogador(mapa, direcao):
         if 0 <= novo_i < len(mapa) and 0 <= novo_j < len(mapa[0]):  # Garante que está dentro dos limites
             if mapa[novo_i][novo_j] == "'":
                 mapa[i][j] = "'"  # Deixa a posição antiga livre
-                mapa[novo_i][novo_j] = '.'  # Move o jogador
+                mapa[novo_i][novo_j] = 'J'  # Move o jogador
 
 def jogar_labirinto():
     arquivo_mapa = "mapa.txt"
