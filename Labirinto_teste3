@@ -1,0 +1,132 @@
+import os
+
+def limpar_tela():
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+def titulo_do_jogo():
+    print('*******************')
+    print('* Bem Vindo ao Jogo *')
+    print('*******************')
+
+def regras_do_jogo():
+    print('\n\n')
+    print('********')
+    print('* Regras *')
+    print('********\n')
+    print('O jogador (J) deve atravessar o labirinto até a saída (E).')
+    print('Os espaços livres são (,), e as paredes são (-).')
+    print('O jogador que completar o labirinto com menos movimentos vence!')
+
+def carregar_mapa(arquivo):
+    try:
+        with open(arquivo, 'r', encoding='utf-8') as f:
+            mapa = [list(linha.strip()) for linha in f.readlines()]
+        return mapa
+    except FileNotFoundError:
+        print("Erro: Arquivo do mapa não encontrado.")
+        exit()
+
+def imprimir_mapa(mapa):
+    limpar_tela()
+    for linha in mapa:
+        print(''.join(linha))
+
+def encontrar_jogador(mapa):
+    posicoes = [(i, j) for i, linha in enumerate(mapa) for j, celula in enumerate(linha) if celula == 'J']
+    if len(posicoes) != 1:
+        print("Erro: O mapa deve conter exatamente um jogador (J).")
+        exit()
+    return posicoes[0]
+
+def mover_jogador(mapa, direcao, movimentos):
+    i, j = encontrar_jogador(mapa)
+    
+    novas_coordenadas = {
+        'w': (i - 1, j),
+        's': (i + 1, j),
+        'a': (i, j - 1),
+        'd': (i, j + 1)
+    }
+
+    if direcao in novas_coordenadas:
+        novo_i, novo_j = novas_coordenadas[direcao]
+        if 0 <= novo_i < len(mapa) and 0 <= novo_j < len(mapa[0]):
+            if mapa[novo_i][novo_j] == ',':
+                mapa[i][j] = ','
+                mapa[novo_i][novo_j] = 'J'
+            elif mapa[novo_i][novo_j] == 'E':
+                mapa[i][j] = ','
+                mapa[novo_i][novo_j] = 'J'
+                imprimir_mapa(mapa)
+                print("\nParabéns! Você venceu o jogo!")
+                print(f'Você precisou de {movimentos} movimentos.')
+                exit()
+
+def escolhe_mapa():
+    escolha = input('Escolha o mapa (1, 2, 3): ')
+    if escolha == '1':
+        return 'mapa.txt'
+    elif escolha == '2':
+        return 'mapa1.txt'
+    elif escolha == '3':
+        return 'mapa2.txt'
+    else:
+        print('Opção inválida. Tente novamente.')
+        return escolhe_mapa()
+
+def listar_opcoes_do_menu():
+    print('\n==== MENU ====')
+    print('1 - Começar Jogo')
+    print('2 - Regras do Jogo')
+    print('3 - Sair')
+    escolher_opcao()
+
+def escolher_opcao():
+    try:
+        opcao = int(input('Digite sua opção: '))
+        if opcao == 1:
+            jogar_labirinto()
+        elif opcao == 2:
+            regras_do_jogo()
+            input('\nPressione qualquer tecla para voltar ao menu...')
+            listar_opcoes_do_menu()
+        elif opcao == 3:
+            print('Saindo do jogo...')
+            exit()
+        else:
+            print('Opção inválida!')
+            listar_opcoes_do_menu()
+    except ValueError:
+        print('Opção inválida!')
+        listar_opcoes_do_menu()
+
+def jogar_labirinto():
+    arquivo_mapa = escolhe_mapa()
+    mapa = carregar_mapa(arquivo_mapa)
+    movimentos = 0
+
+    while True:
+        imprimir_mapa(mapa)
+        movimento = input("Use W A S D para mover ou Q para sair: ").lower()
+
+        if movimento == 'q':
+            limpar_tela()
+            print("Saindo do jogo...")
+            break
+        elif movimento in ['w', 'a', 's', 'd']:
+            mover_jogador(mapa, movimento, movimentos)
+            movimentos += 1
+        else:
+            print("Movimento inválido! Use W, A, S ou D.")
+
+    print(f"Jogo finalizado! Total de movimentos: {movimentos}")
+    input("Pressione qualquer tecla para voltar ao menu...")
+    listar_opcoes_do_menu()
+
+def main():
+    limpar_tela()
+    titulo_do_jogo()
+    listar_opcoes_do_menu()
+
+if __name__ == "__main__":
+    main()
